@@ -31,7 +31,7 @@ services:
     container_name: headscale-ui
     restart: unless-stopped
     ports:
-      - "${UI_PORT:-9443}:5000"
+      - "${UI_PORT:-9443}:8080"
     environment:
       - REACT_APP_HEADSCALE_URL=${HEADSCALE_SERVER_URL:-http://106.54.43.41:9080}
       - REACT_APP_HEADSCALE_API_KEY=${HEADSCALE_API_KEY:-}
