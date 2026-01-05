@@ -34,17 +34,22 @@ else
     echo "Docker已安装: $(docker --version)"
 fi
 
-# 检查Docker Compose是否安装
-if ! command -v docker-compose &> /dev/null; then
+# 检测 Docker Compose 命令（支持新版本 docker compose 和旧版本 docker-compose）
+if docker compose version &> /dev/null; then
+    DOCKER_COMPOSE_CMD="docker compose"
+    echo "检测到 Docker Compose (新版本): $(docker compose version)"
+elif command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE_CMD="docker-compose"
+    echo "检测到 Docker Compose (旧版本): $(docker-compose --version)"
+else
     echo "检测到Docker Compose未安装，开始安装..."
     
-    # 安装Docker Compose
+    # 安装Docker Compose（旧版本独立命令）
     curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
     chmod +x /usr/local/bin/docker-compose
     
+    DOCKER_COMPOSE_CMD="docker-compose"
     echo "Docker Compose安装完成: $(docker-compose --version)"
-else
-    echo "Docker Compose已安装: $(docker-compose --version)"
 fi
 
 # 配置防火墙
@@ -119,9 +124,9 @@ fi
 
 # 启动服务
 echo "启动Headscale服务..."
-docker-compose down 2>/dev/null || true
-docker-compose pull
-docker-compose up -d
+$DOCKER_COMPOSE_CMD down 2>/dev/null || true
+$DOCKER_COMPOSE_CMD pull
+$DOCKER_COMPOSE_CMD up -d
 
 # 等待服务启动
 echo "等待服务启动..."
@@ -129,7 +134,7 @@ sleep 10
 
 # 检查服务状态
 echo "检查服务状态..."
-docker-compose ps
+$DOCKER_COMPOSE_CMD ps
 
 # 生成API密钥提示
 echo ""
@@ -143,17 +148,20 @@ echo "   docker exec -it headscale headscale apikeys create -e 365d"
 echo ""
 echo "2. 将生成的API密钥添加到.env文件中的HEADSCALE_API_KEY"
 echo ""
-echo "3. 创建命名空间："
-echo "   docker exec -it headscale headscale namespaces create robots"
+echo "3. 创建用户（新版本使用 users，不是 namespaces）："
+echo "   docker exec -it headscale headscale users create robots"
 echo ""
-echo "4. 生成预认证密钥（用于客户端连接）："
-echo "   docker exec -it headscale headscale preauthkeys create -e 365d -n robots"
+echo "4. 查看用户列表获取用户ID："
+echo "   docker exec -it headscale headscale users list"
 echo ""
-echo "5. 访问Web界面："
+echo "5. 生成预认证密钥（使用用户ID，假设ID为1）："
+echo "   docker exec -it headscale headscale preauthkeys create -e 365d -u 1"
+echo ""
+echo "6. 访问Web界面："
 echo "   http://$(grep HEADSCALE_SERVER_URL .env | cut -d'/' -f3 | cut -d':' -f1):9443"
 echo ""
 echo "查看日志："
-echo "   docker-compose logs -f"
+echo "   $DOCKER_COMPOSE_CMD logs -f"
 echo ""
 echo "详细文档请查看 README.md"
 echo "=========================================="
