@@ -14,8 +14,8 @@
   "ssh": [
     {
       "action": "accept",
-      "src": ["autogroup:members"],
-      "dst": ["autogroup:members"],
+      "src": ["autogroup:member"],
+      "dst": ["autogroup:member"],
       "users": ["autogroup:nonroot", "root"]
     }
   ]
