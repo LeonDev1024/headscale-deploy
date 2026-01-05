@@ -1,8 +1,24 @@
 # headscale配置文件
 # 适用于200台设备规模的中继服务
 
-server_url: http://localhost:9080
+server_url: http://106.54.43.41:9080
 listen_addr: 0.0.0.0:8080
+
+# CORS配置（允许跨域请求）
+cors:
+  allowed_origins:
+    - http://106.54.43.41:9443
+    - http://localhost:9443
+  allowed_methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+  allowed_headers:
+    - Content-Type
+    - Authorization
+  allow_credentials: true
 
 # 数据库配置 - 使用SQLite
 database:
