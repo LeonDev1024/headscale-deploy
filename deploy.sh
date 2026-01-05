@@ -50,12 +50,34 @@ fi
 # 配置防火墙
 echo "配置防火墙规则..."
 if command -v firewall-cmd &> /dev/null; then
-    firewall-cmd --permanent --add-port=9080/tcp
-    firewall-cmd --permanent --add-port=9443/tcp
-    firewall-cmd --permanent --add-port=41641/udp
-    firewall-cmd --permanent --add-port=3478/udp
-    firewall-cmd --reload
-    echo "防火墙规则已配置（firewalld）"
+    # 检查FirewallD服务是否运行
+    if systemctl is-active --quiet firewalld 2>/dev/null; then
+        echo "FirewallD服务正在运行，配置防火墙规则..."
+        firewall-cmd --permanent --add-port=9080/tcp
+        firewall-cmd --permanent --add-port=9443/tcp
+        firewall-cmd --permanent --add-port=41641/udp
+        firewall-cmd --permanent --add-port=3478/udp
+        firewall-cmd --reload
+        echo "防火墙规则已配置（firewalld）"
+    elif systemctl is-enabled firewalld &>/dev/null; then
+        # 服务已安装但未运行，尝试启动
+        echo "FirewallD服务未运行，尝试启动..."
+        if systemctl start firewalld 2>/dev/null; then
+            sleep 2
+            firewall-cmd --permanent --add-port=9080/tcp
+            firewall-cmd --permanent --add-port=9443/tcp
+            firewall-cmd --permanent --add-port=41641/udp
+            firewall-cmd --permanent --add-port=3478/udp
+            firewall-cmd --reload
+            echo "防火墙规则已配置（firewalld）"
+        else
+            echo "警告: 无法启动FirewallD服务，跳过防火墙配置"
+            echo "请手动配置防火墙规则，需要开放的端口: 9080/tcp, 9443/tcp, 41641/udp, 3478/udp"
+        fi
+    else
+        echo "警告: FirewallD服务未安装或未启用，跳过防火墙配置"
+        echo "请手动配置防火墙规则，需要开放的端口: 9080/tcp, 9443/tcp, 41641/udp, 3478/udp"
+    fi
 else
     echo "警告: 未检测到firewalld，请手动配置防火墙规则"
     echo "需要开放的端口: 9080/tcp, 9443/tcp, 41641/udp, 3478/udp"
