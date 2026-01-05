@@ -11,9 +11,6 @@
       "dst": ["*:*"]
     }
   ],
-  "derpMap": {
-    "regions": {}
-  },
   "ssh": [
     {
       "action": "accept",
