@@ -30,6 +30,7 @@ derp:
     # 如果VPS有公网IP，DERP会自动使用
     # 如果需要自定义，可以配置stun_listen_addr
     stun_listen_addr: 0.0.0.0:3478
+    private_key_path: /var/lib/headscale/derp_private.key
 
   # 可以配置其他DERP服务器作为备用
   urls:
