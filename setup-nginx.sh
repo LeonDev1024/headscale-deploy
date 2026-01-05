@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Nginx 安装和配置脚本
+# Nginx 配置脚本
 # 用于解决 Headscale UI 的 CORS 问题
 
 set -e
 
 echo "=========================================="
-echo "Nginx 安装和配置脚本"
+echo "Nginx 配置脚本"
 echo "=========================================="
 
 # 检查是否为root用户
@@ -17,26 +17,12 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # 检查 Nginx 是否已安装
-if command -v nginx &> /dev/null; then
-    echo "Nginx 已安装: $(nginx -v 2>&1)"
-    read -p "是否重新配置 Nginx? (y/n): " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "跳过 Nginx 安装"
-        exit 0
-    fi
-else
-    echo "检测到 Nginx 未安装，开始安装 Nginx..."
-    
-    # 安装 Nginx
-    yum install -y nginx
-    
-    # 启动 Nginx
-    systemctl start nginx
-    systemctl enable nginx
-    
-    echo "Nginx 安装完成"
+if ! command -v nginx &> /dev/null; then
+    echo "错误: Nginx 未安装，请先安装 Nginx"
+    exit 1
 fi
+
+echo "检测到 Nginx: $(nginx -v 2>&1)"
 
 # 备份原有配置
 if [ -f /etc/nginx/conf.d/headscale.conf ]; then
