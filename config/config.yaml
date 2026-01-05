@@ -1,0 +1,92 @@
+# headscale配置文件
+# 适用于200台设备规模的中继服务
+
+server_url: http://localhost:9080
+listen_addr: 0.0.0.0:8080
+
+# 数据库配置 - 使用SQLite
+db_type: sqlite3
+db_path: /var/lib/headscale/db.sqlite
+
+# 私钥配置
+private_key_path: /var/lib/headscale/private.key
+noise:
+  private_key_path: /var/lib/headscale/noise_private.key
+
+# IP地址池配置
+ip_prefixes:
+  - fd7a:115c:a1e0::/48  # IPv6地址池
+  - 100.64.0.0/10        # IPv4地址池（Tailscale默认）
+
+# DERP配置
+derp:
+  server:
+    enabled: true
+    region_id: 999
+    region_code: "relay"
+    region_name: "Headscale Relay"
+    # 如果VPS有公网IP，DERP会自动使用
+    # 如果需要自定义，可以配置stun_listen_addr
+    stun_listen_addr: 0.0.0.0:3478
+
+  # 可以配置其他DERP服务器作为备用
+  urls:
+    - https://controlplane.tailscale.com/derpmap/default
+
+  # 本地DERP映射
+  paths: []
+
+  # 自动更新DERP映射
+  auto_update_enabled: true
+  update_frequency: 24h
+
+# 日志配置
+log:
+  level: info
+  format: text
+
+# 访问控制列表（ACL）
+acl_policy_path: /etc/headscale/acl.hujson
+
+# 禁用自动创建用户（可选，根据需求调整）
+disable_check_updates: false
+ephemeral_node_inactivity_timeout: 30m
+
+# 节点过期时间（30天未使用则过期）
+node_update_check_interval: 10s
+
+# 性能优化（针对200台设备）
+# 增加节点更新频率，提高连接稳定性
+node_expiry_check_interval: 1h
+
+# 实验性功能
+experimental:
+  # 允许节点间直接通信
+  allow_self_connections: false
+
+# 数据库连接池（SQLite优化，针对200台设备）
+db_connection_max_idle: 25
+db_connection_max_open: 200
+db_connection_max_lifetime: 10m
+
+# 性能优化（针对200台设备）
+grpc_listen_addr: 0.0.0.0:50443
+grpc_allow_insecure: false
+
+# 指标收集（可选）
+metrics_listen_addr: 127.0.0.1:9090
+
+# DNS配置（可选）
+dns_config:
+  override_local_dns: true
+  nameservers:
+    - 8.8.8.8
+    - 8.8.4.4
+  domains: []
+  magic_dns: true
+  base_domain: example.com  # 请修改为您的域名
+
+# Unix socket配置（用于headscale-ui通信）
+unix_socket: /var/run/headscale/headscale.sock
+unix_socket_permission: "0770"
+

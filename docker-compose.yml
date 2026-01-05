@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  headscale:
+    image: headscale/headscale:latest
+    container_name: headscale
+    restart: unless-stopped
+    volumes:
+      - ./config:/etc/headscale
+      - ./data:/var/lib/headscale
+      - ./data/socket:/var/run/headscale
+    ports:
+      - "${HEADSCALE_PORT:-9080}:8080"  # headscale API端口
+      - "41641:41641/udp"  # headscale DERP端口
+      - "${STUN_PORT:-3478}:3478/udp"  # STUN端口（用于NAT穿透）
+    command: headscale serve
+    environment:
+      - HEADSCALE_SERVER_URL=${HEADSCALE_SERVER_URL:-http://localhost:9080}
+    networks:
+      - headscale-network
+    healthcheck:
+      test: ["CMD", "headscale", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # 资源限制（针对200台设备优化）
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  headscale-ui:
+    image: ghcr.io/gurucomputing/headscale-ui:latest
+    container_name: headscale-ui
+    restart: unless-stopped
+    ports:
+      - "${UI_PORT:-9443}:5000"
+    environment:
+      - REACT_APP_HEADSCALE_URL=${HEADSCALE_SERVER_URL:-http://localhost:9080}
+      - REACT_APP_HEADSCALE_API_KEY=${HEADSCALE_API_KEY:-}
+    depends_on:
+      headscale:
+        condition: service_healthy
+    networks:
+      - headscale-network
+    # UI资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+networks:
+  headscale-network:
+    driver: bridge
+

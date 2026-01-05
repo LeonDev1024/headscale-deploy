@@ -1,0 +1,29 @@
+{
+  // ACL配置文件
+  // 允许所有节点之间互相访问
+  "groups": {
+    "group:admin": ["admin"],
+    "group:robots": ["robot"]
+  },
+  "hosts": {},
+  "acls": [
+    // 允许所有节点互相访问
+    {
+      "action": "accept",
+      "src": ["*"],
+      "dst": ["*:*"]
+    }
+  ],
+  "derpMap": {
+    "regions": {}
+  },
+  "ssh": [
+    {
+      "action": "accept",
+      "src": ["autogroup:members"],
+      "dst": ["autogroup:members"],
+      "users": ["autogroup:nonroot", "root"]
+    }
+  ]
+}
+
