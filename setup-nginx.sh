@@ -49,9 +49,25 @@ else
     exit 1
 fi
 
-# 重新加载 Nginx
-echo "重新加载 Nginx..."
-systemctl reload nginx
+# 检查并启动/重新加载 Nginx
+echo "检查 Nginx 服务状态..."
+if systemctl is-active --quiet nginx; then
+    echo "Nginx 正在运行，重新加载配置..."
+    systemctl reload nginx
+else
+    echo "Nginx 未运行，启动服务..."
+    systemctl start nginx
+    systemctl enable nginx
+fi
+
+# 验证 Nginx 是否在监听 9080 端口
+sleep 2
+if ss -tuln | grep -q ":9080 "; then
+    echo "✓ Nginx 已成功监听 9080 端口"
+else
+    echo "⚠ 警告: Nginx 可能未正确监听 9080 端口，请检查配置"
+    echo "运行以下命令检查: ss -tuln | grep 9080"
+fi
 
 echo ""
 echo "=========================================="
