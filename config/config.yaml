@@ -15,10 +15,8 @@ noise:
 
 # IP地址池配置
 prefixes:
-  v4:
-    - 100.64.0.0/10        # IPv4地址池（Tailscale默认）
-  v6:
-    - fd7a:115c:a1e0::/48  # IPv6地址池
+  v4: 100.64.0.0/10        # IPv4地址池（Tailscale默认）
+  v6: fd7a:115c:a1e0::/48  # IPv6地址池
 
 # DERP配置
 derp:
