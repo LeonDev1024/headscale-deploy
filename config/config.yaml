@@ -5,8 +5,10 @@ server_url: http://localhost:9080
 listen_addr: 0.0.0.0:8080
 
 # 数据库配置 - 使用SQLite
-db_type: sqlite3
-db_path: /var/lib/headscale/db.sqlite
+database:
+  type: sqlite3
+  sqlite:
+    path: /var/lib/headscale/db.sqlite
 
 # 私钥配置
 private_key_path: /var/lib/headscale/private.key
