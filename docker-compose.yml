@@ -33,8 +33,9 @@ services:
     ports:
       - "${UI_PORT:-9443}:5000"
     environment:
-      - REACT_APP_HEADSCALE_URL=${HEADSCALE_SERVER_URL:-http://localhost:9080}
+      - REACT_APP_HEADSCALE_URL=${HEADSCALE_SERVER_URL:-http://106.54.43.41:9080}
       - REACT_APP_HEADSCALE_API_KEY=${HEADSCALE_API_KEY:-}
+      - HEADSCALE_URL=http://headscale:8080
     depends_on:
       headscale:
         condition: service_started
