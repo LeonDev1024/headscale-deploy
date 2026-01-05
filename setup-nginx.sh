@@ -30,6 +30,29 @@ if [ -f /etc/nginx/conf.d/headscale.conf ]; then
     echo "已备份原有配置文件"
 fi
 
+# 检查 Nginx 主配置文件是否包含 conf.d
+echo "检查 Nginx 主配置文件..."
+if ! grep -q "include.*conf.d" /etc/nginx/nginx.conf; then
+    echo "警告: Nginx 主配置文件未包含 conf.d 目录"
+    echo "检查主配置文件结构..."
+    
+    # 备份主配置文件
+    cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup.$(date +%Y%m%d_%H%M%S)
+    
+    # 检查是否有 http 块
+    if grep -q "^http {" /etc/nginx/nginx.conf; then
+        echo "在 http 块中添加 include conf.d 配置..."
+        # 在 http { 之后添加 include
+        sed -i '/^http {/a\    include /etc/nginx/conf.d/*.conf;' /etc/nginx/nginx.conf
+        echo "已添加 include /etc/nginx/conf.d/*.conf; 到主配置文件"
+    else
+        echo "错误: 无法找到 http 块，请手动检查 /etc/nginx/nginx.conf"
+        exit 1
+    fi
+else
+    echo "✓ Nginx 主配置文件已包含 conf.d 目录"
+fi
+
 # 复制配置文件
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$SCRIPT_DIR/nginx-headscale.conf" ]; then
@@ -46,6 +69,7 @@ if nginx -t; then
     echo "Nginx 配置测试通过"
 else
     echo "错误: Nginx 配置测试失败"
+    echo "请检查配置文件: /etc/nginx/nginx.conf 和 /etc/nginx/conf.d/headscale.conf"
     exit 1
 fi
 
