@@ -46,7 +46,8 @@ log:
   format: text
 
 # 访问控制列表（ACL）
-acl_policy_path: /etc/headscale/acl.hujson
+policy:
+  path: /etc/headscale/acl.hujson
 
 # 禁用自动创建用户（可选，根据需求调整）
 disable_check_updates: false
@@ -77,12 +78,13 @@ grpc_allow_insecure: false
 metrics_listen_addr: 127.0.0.1:9090
 
 # DNS配置（可选）
-dns_config:
+dns:
   override_local_dns: true
   nameservers:
-    - 8.8.8.8
-    - 8.8.4.4
-  domains: []
+    global:
+      - 8.8.8.8
+      - 8.8.4.4
+  search_domains: []
   magic_dns: true
   base_domain: example.com  # 请修改为您的域名
 
