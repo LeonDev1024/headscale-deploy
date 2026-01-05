@@ -8,7 +8,7 @@ services:
       - ./data:/var/lib/headscale
       - ./data/socket:/var/run/headscale
     ports:
-      - "${HEADSCALE_PORT:-9080}:8080"  # headscale API端口
+      - "127.0.0.1:8080:8080"  # headscale API端口（仅本地访问，由 Nginx 代理）
       - "41641:41641/udp"  # headscale DERP端口
       - "${STUN_PORT:-3478}:3478/udp"  # STUN端口（用于NAT穿透）
     command: ["serve"]
